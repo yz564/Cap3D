@@ -1,6 +1,16 @@
 #include "doMesh.h"
 #include <assert.h>
 
+template <typename T>
+Mesh<T>::Mesh(int Ne, int Nn, int Et) : num_elem(Ne), num_node(Nn), elem_type(Et), elems(Ne), attribs(Ne), nodes(Nn) {
+	for (int i=0; i< num_elem; ++i){
+		elems[i].resize(elem_type);
+	}
+	for (int i=0; i< num_node; ++i){
+		nodes[i].resize(3);
+	}
+}
+
 /* 
 this function should change if the mesh template changes.
 current mesh template are in the ./mesh/xxx.elx
@@ -22,34 +32,29 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 	int elem_type = tmp[0];
 	Mesh<T> * ans = new Mesh<T>(num_elem, num_node, elem_type);
 	int count = 0;
-	ans->elems.resize(num_elem);
-	ans->attribs.resize(num_elem);
-	ans->nodes.resize(num_node);
 	for (int i = 0; i < num_blk; ++i) {
 		get_line_strip_comments(readfile, str);
 		ReadLine_helper<int>(str, 3, tmp);
 		int num_elem_blk = tmp[0];
 		//int blk_id = tmp[1];
 		int attrib_blk = tmp[2];
-		std::vector<int> data(elem_type);
 		for (int j = 0; j < num_elem_blk; ++j) {
 			std::getline(readfile, str);
-			ReadLine_helper<int>(str, elem_type, data);
-			ans->elems[count]=data; //the meshfile is 1-based
+			ReadLine_helper<int>(str, elem_type, ans->elems[count]);
 			ans->attribs[count]=attrib_blk;
 			count++;
 		}
 	}
 	assert(count == num_elem);
 	//start to read the node coordinates (three-dimensional)
-	std::vector<T> data2(3);
 	for (int i = 0; i < num_node; ++i) {
 		std::getline(readfile, str);
-		ReadLine_helper<T>(str, 3, data2);
-		ans->nodes[i]=data2;
+		ReadLine_helper<T>(str, 3, ans->nodes[i]);
 	}
 	return ans;
 }
+//explicit instantiations for commonly used types
+//otherwise it results in "undefined reference" errors in linker
 template Mesh<float> * LoadMesh<float>(const std::string meshfile);
 template Mesh<double> * LoadMesh<double>(const std::string meshfile);
 

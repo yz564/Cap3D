@@ -20,7 +20,7 @@ public:
 	std::vector<int> attribs;
 	std::vector<std::vector<T>> nodes;
 
-	Mesh(int Ne, int Nn, int Et) :num_elem(Ne), num_node(Nn), elem_type(Et){}
+	Mesh(int Ne, int Nn, int Et);
 	
 };
 

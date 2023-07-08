@@ -1,6 +1,5 @@
-#include <ctime>
 #include "doMesh.h"
-
+#include <ctime>
 
 void print_time_cost(const std::string& message, std::ofstream & logfile, std::vector<clock_t>& timer) {
 	std::cout << message << (clock() - timer.back()) / (double)CLOCKS_PER_SEC << " seconds" << std::endl;
