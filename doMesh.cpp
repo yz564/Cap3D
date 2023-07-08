@@ -1,4 +1,5 @@
 #include "doMesh.h"
+#include "doConfig.h"
 #include <assert.h>
 
 template <typename T>
@@ -9,6 +10,7 @@ Mesh<T>::Mesh(int Ne, int Nn, int Et) : num_elem(Ne), num_node(Nn), elem_type(Et
 	for (int i=0; i< num_node; ++i){
 		nodes[i].resize(3);
 	}
+	printf("[Mesh] constructor: \n elem_num=%d, node_num=%d \n", num_elem, num_node);
 }
 
 /* 
@@ -58,48 +60,5 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 template Mesh<float> * LoadMesh<float>(const std::string meshfile);
 template Mesh<double> * LoadMesh<double>(const std::string meshfile);
 
-std::istream& get_line_strip_comments(std::istream& stm, std::string& str)
-{
-	if (std::getline(stm, str))
-	{
-		auto pos = str.find("#");
-		if (pos == 0) return get_line_strip_comments(stm, str);
-		else if (pos != std::string::npos) str.erase(pos);
-	}
-	return stm;
-}
-
-template<typename T>
-void ReadLine_helper(const std::string & str, const int num, std::vector<T> & data) {
-	std::string word = "";
-	int n = 0;
-	for (size_t i = 0; i < str.length(); ++i) {
-		char x = str[i];
-		if (x == '\0' || n >= num) {
-			break;
-		}
-		else if (x != ' ') {
-			word += x;
-		}
-		else if (word.length() > 0) {
-			if (std::is_floating_point<T>::value) {
-				data[n] = std::stod(word);
-			}
-			else {
-				data[n] = std::stoi(word);
-			}
-			word = "";
-			n++;
-		}
-	}
-	if (n < num && word.length()>0) {
-		if (std::is_floating_point<T>::value) {
-			data[n] = std::stod(word);
-		}
-		else {
-			data[n] = std::stoi(word);
-		}
-	}
-}
 
 

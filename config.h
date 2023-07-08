@@ -1,9 +1,9 @@
-#ifndef DOMESH_H
-#define DOMESH_H
+#ifndef DOCONFIG_H
+#define DOCONFIG_H
+
 
 #include <vector>
 #include <string>
-#include <fstream>
 
 template<typename T>
 class Mesh {
@@ -21,7 +21,5 @@ public:
 
 template<typename T>
 Mesh<T> * LoadMesh(const std::string meshfile);
-
-
 
 #endif

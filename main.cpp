@@ -1,3 +1,4 @@
+#include "doConfig.h"
 #include "doMesh.h"
 #include <ctime>
 
@@ -7,7 +8,6 @@ void print_time_cost(const std::string& message, std::ofstream & logfile, std::v
 	timer.push_back(clock());
 }
 
-
 template <typename T>
 void Cal3dCaps(){
 	std::ofstream logfile;
@@ -16,11 +16,15 @@ void Cal3dCaps(){
 	std::cout<<"==================start=================="<<std::endl;
 	logfile << "==================start==================" << std::endl;
 	timer.push_back(clock());
-	const std::string meshfile="mesh/two_plate_v1.elx";
-	Mesh<T> * mesh = LoadMesh<T>(meshfile);
+	
+	//const std::string configfile="config.txt";
+	Config<T> * config=ReadConfig<T>("config.txt");
+	
+	Mesh<T> * mesh = LoadMesh<T>(config->mesh_file);
+	
 	print_time_cost("Load the mesh takes ", logfile, timer);
-	printf("elem_num=%d, node_num=%d \n", mesh->num_elem, mesh->num_node);
 	delete mesh;
+	delete config;
 	std::cout << "Total time: " << (clock() - timer.front()) / (double)CLOCKS_PER_SEC << " seconds" << std::endl;
 	logfile << "Total time: " << (clock() - timer.front()) / (double)CLOCKS_PER_SEC << " seconds" << std::endl;
 	logfile.close();

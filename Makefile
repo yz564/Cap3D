@@ -1,9 +1,9 @@
 CC := g++
 CFLAGS := -Wall -Wextra -pedantic -g
 TARGET := cap3d
-SRCS := main.cpp doMesh.cpp
+SRCS := main.cpp doConfig.cpp doMesh.cpp
 OBJS := $(SRCS:.cpp=.o)
-DEPS := doMesh.h
+DEPS := doConfig.cpp doMesh.h 
 
 .PHONY: all clean
 
