@@ -17,10 +17,14 @@ void Cal3dCaps(){
 	logfile << "==================start==================" << std::endl;
 	timer.push_back(clock());
 	
-	//const std::string configfile="config.txt";
+	//configutation
 	Config<T> * config=ReadConfig<T>("config.txt");
-	
+	//mesh
 	Mesh<T> * mesh = LoadMesh<T>(config->mesh_file);
+	//basis function
+	for (int i=0; i<mesh->num_node;++i){
+		mesh->nodes[i].print_info(logfile);
+	}
 	
 	print_time_cost("Load the mesh takes ", logfile, timer);
 	delete mesh;
