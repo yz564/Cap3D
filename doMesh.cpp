@@ -20,6 +20,17 @@ T Triangle<T>::calArea(std::vector<Node<T>> * nodes_ptr){
     	return this->area;
 }
 
+template <typename T>
+void Triangle<T>::calCenter(std::vector<Node<T>> * nodes_ptr){
+	Node p1=(*nodes_ptr)[0];
+	Node p2=(*nodes_ptr)[1];
+	Node p3=(*nodes_ptr)[2];
+	T x = (p1.x+p2.x+p3.x)/3;
+    	T y = (p1.y+p2.y+p3.y)/3;
+    	T z = (p1.z+p2.z+p3.z)/3;
+    	this->center = new Node(-this->elem_id,x,y,z); // use negative id: represent which element (-elem_id) contains this point
+}
+
 /* 
 this function should change if the mesh template changes.
 current mesh template are in the ./mesh/xxx.elx
@@ -78,6 +89,7 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 			(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]).link_elem_ids.push_back(i);
 		}
 		total_area+=mesh_ptr->elem_ptrs[i]->calArea(&nodes_in_elem);
+		mesh_ptr->elem_ptrs[i]->calCenter(&nodes_in_elem);
 	}
 	std::cout << "the total area of the mesh: " << total_area <<std::endl;
 	return mesh_ptr;

@@ -1,9 +1,9 @@
 CC := g++
-CFLAGS := -Wall -Wextra -pedantic -g
+CFLAGS := -Wall -Wextra -pedantic -g -fopenmp
 TARGET := cap3d
-SRCS := main.cpp doConfig.cpp doMesh.cpp
+SRCS := main.cpp doConfig.cpp doMesh.cpp doMatrix.cpp
 OBJS := $(SRCS:.cpp=.o)
-DEPS := doConfig.cpp doMesh.h 
+DEPS := doConfig.h doMesh.h doMatrix.h
 
 .PHONY: all clean
 
