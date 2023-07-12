@@ -20,6 +20,7 @@ struct BasisFunc{
 	virtual T calDiag(int i)=0;
 	virtual T calOffDiag(int i, int j)=0;
 	virtual T calRhs(int i,std::vector<T> * e_potential)=0;
+	virtual std::vector<T> calQ(std::vector<T> & solution,int num_metals)=0;
 	virtual ~BasisFunc(){}
 };
 
@@ -29,6 +30,7 @@ struct Basis_0: public BasisFunc<T>{
 	T calDiag(int i);
 	T calOffDiag(int i, int j);
 	T calRhs(int i,std::vector<T> * e_potential);
+	std::vector<T> calQ(std::vector<T> & solution,int num_metals);
 	~Basis_0(){} // should not specify deconstructor because Base * is deleted in Triangle
 };
 

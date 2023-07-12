@@ -45,19 +45,33 @@ template double Basis_0<double>::calOffDiag(int i, int j);
 
 template <typename T>
 T Basis_0<T>::calRhs(int i,std::vector<T> * e_potential){
+	//if (abs(this->mesh->elem_ptrs[i]->center->z)<=0.001){this->mesh->elem_ptrs[i]->attrib=2;} //temporary fix for the problem mesh
 	int attrib=this->mesh->elem_ptrs[i]->attrib;
-	if (abs(this->mesh->elem_ptrs[i]->center->z)<=0.001){attrib=2;} //temporary fix for the problem mesh
 	return (*e_potential)[attrib-1];
 }
 template float Basis_0<float>::calRhs(int i,std::vector<float> * e_potential);
 template double Basis_0<double>::calRhs(int i,std::vector<double> * e_potential);
+
+
+template <typename T>
+std::vector<T> Basis_0<T>::calQ(std::vector<T>& solution, int num_metals){
+	std::vector<T> Q(num_metals,T(0));
+	for (int i=0;i< this->num_base; ++i){
+		int attrib=this->mesh->elem_ptrs[i]->attrib;
+		T area=this->mesh->elem_ptrs[i]->area;
+		Q[attrib-1]+=area*solution[i];
+	}
+	return Q;
+}
+template std::vector<float> Basis_0<float>::calQ(std::vector<float>& solution, int num_metals);
+template std::vector<double> Basis_0<double>::calQ(std::vector<double>& solution, int num_metals);
 
 template <typename T>
 Eigen::Matrix<std::complex<T>, -1, -1> * CalCoeffMat(BasisFunc<T> * basis){
 	int num_base=basis->num_base;
 	Eigen::Matrix<std::complex<T>, -1, -1> * A = new Eigen::Matrix<std::complex<T>, -1, -1>(num_base, num_base);
 	int i,j;
-	//#pragma omp parallel for private(i)
+	#pragma omp parallel for private(i)
 	for (i = 0; i < num_base; ++i) {
 		for (j = 0; j < num_base; ++j) {
 			if (i==j) {
