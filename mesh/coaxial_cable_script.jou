@@ -1,0 +1,23 @@
+reset
+set default element tri  
+
+create cylinder height 0.5 radius 0.02
+create cylinder height 0.5 radius 0.1
+create cylinder height 0.5 radius 0.11
+
+subtract body 2 from body 3 imprint
+
+block 1 surface 1 2 3
+block 2 surface 7 10 11 12
+Block all Attribute Count 1
+Block 1 Attribute Index 1 1
+Block 2 Attribute Index 1 2
+
+volume 1 size 0.1
+volume 3 size 0.1
+mesh surface all
+
+cd 'C:\Users\yz564\Desktop\Mesh'
+export genesis "coaxial_5_0p5_meshsize0p1.g" block all  overwrite
+
+
