@@ -23,7 +23,8 @@ void Cal3dCaps(){
 	//configutation
 	Config<T> * config=ReadConfig<T>("config.txt");
 	omp_set_num_threads(config->allowedthreads);
-	Eigen::setNbThreads(config->allowedthreads);
+	Eigen::initParallel();
+	//Eigen::setNbThreads(config->allowedthreads);
 	//mesh
 	Mesh<T> * mesh = LoadMesh<T>(config->mesh_file);
 	//basis function
@@ -39,16 +40,29 @@ void Cal3dCaps(){
 	
 	Eigen::Matrix<std::complex<T>, -1, -1> * A = CalCoeffMat<T>(basis);
 	print_time_cost("Calculate the coefficient matrix takes ", logfile, timer);
-	Eigen::Matrix<std::complex<T>, -1, -1> * b = CalRhsVec<T>(basis, &(config->electrostatic_potential));
+	Eigen::Matrix<std::complex<T>, -1, 1> * b = CalRhsVec<T>(basis, &(config->electrostatic_potential));
 	print_time_cost("Calculate the rhs vector takes ", logfile, timer);
 	
-	Eigen::Matrix<std::complex<T>, -1, -1> x(basis->num_base,1);
-	x.setZero();
+	//Eigen::Matrix<std::complex<T>, -1, 1> x(basis->num_base,1);
+	//x.setZero();
 	//Eigen::HouseholderQR<Eigen::Matrix<std::complex<T>, -1, -1>> qr(*A);
 	//x = qr.solve(*b);
 	
-	x= (*A).lu().solve(*b);
 	
+	
+	Eigen::Matrix<std::complex<T>, -1, 1> x;
+	
+	Eigen::FullPivLU<Eigen::Matrix<std::complex<T>, -1, -1>> lu;
+    	lu.setThreshold(0.001); // Set the threshold for partial pivoting
+    	lu.compute(*A);
+    	int i;
+    	#pragma omp parallel for private(i)
+    	for (i = 0; i < (*A).rows(); ++i) {
+    		Eigen::Matrix<std::complex<T>, -1, 1> bi = (*b).segment(i,1); // Extract the current row of the right-hand side vector
+        	x.segment(i,1) = lu.solve(bi);
+    	}
+	
+	//x= (*A).lu().solve(*b);
 	//std::cout<<"A.min = "<<(*A).minCoeff()<<std::endl;
 	//std::cout<<"A.max = "<<(*A).maxCoeff()<<std::endl;
 	std::cout<<"A.sum = "<<(*A).sum()<<std::endl;
@@ -75,6 +89,6 @@ void Cal3dCaps(){
 }
 
 int main() {
-	Cal3dCaps<double>();
+	Cal3dCaps<float>();
 	return 0;
 }
