@@ -1,0 +1,18 @@
+reset
+set default element tri  
+
+create sphere radius 1
+
+block 1 surface 1
+
+Block all Attribute Count 1
+Block 1 Attribute Index 1 1
+
+
+surface 1 size 0.2
+
+mesh surface all
+
+cd 'C:\Users\yz564\Desktop\Mesh'
+export genesis "sphere_1_meshsize0p2.g" block all  overwrite
+
