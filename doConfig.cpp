@@ -1,5 +1,6 @@
 #include "doConfig.h"
 
+
 template <typename T>
 Config<T>::Config(T eps_r, int Nm, std::vector<T> phi, int tds, const std::string mf):\
 relative_permitivity(eps_r), metal_num(Nm), electrostatic_potential(phi), allowedthreads(tds), mesh_file(mf){
@@ -9,10 +10,12 @@ relative_permitivity(eps_r), metal_num(Nm), electrostatic_potential(phi), allowe
 template <typename T>
 void Config<T>::print() {
 	std::cout << "[Config] constructor: \n";
-	std::cout << "Homogeneous background permitivity : " << relative_permitivity << "F/m \n";
-	std::cout << "The number of metal objective: " << metal_num << "\n";
+	std::cout << "Homogeneous background permitivity : " << PERMITIVITY<T> << "F/m \n";
+	logfile << "Homogeneous background permitivity : " << PERMITIVITY<T> << "F/m \n";
+	logfile << "Mesh File : " << mesh_file << std::endl;
 	for (int i=0; i<metal_num; ++i){
 		std::cout << "The electrostatic potential of metal objective " << i+1 << ": " << electrostatic_potential[i] << "V \n";
+		logfile << "The electrostatic potential of metal objective " << i+1 << ": " << electrostatic_potential[i] << "V \n";
 	}
 }
 
@@ -42,7 +45,7 @@ Config<T> * ReadConfig(const std::string inputfile) {
 	
 	get_line_strip_comments(readfile, str);
 	std::string mf=str;
-	
+	PERMITIVITY<T> = eps_r*(8.854e-12);
 	Config<T> * config_ptr = new Config<T>(eps_r, Nm, phi, tds, mf);
 	return config_ptr;
 }

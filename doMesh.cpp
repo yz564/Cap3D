@@ -4,7 +4,8 @@
 
 template <typename T>
 Mesh<T>::Mesh(int Ne, int Nn, int Et) : num_elem(Ne), num_node(Nn), elem_type(Et), elem_ptrs(Ne), nodes(Nn) {
-	printf("[Mesh] constructor: \n elem_num=%d, node_num=%d \n", num_elem, num_node);
+	printf("[Mesh] constructor: Elem_num=%d, node_num=%d \n", num_elem, num_node);
+	logfile<<"[Mesh] constructor: Elem_num = " <<num_elem<<", node_num = " <<num_node<< std::endl;
 }
 
 template <typename T>
@@ -80,18 +81,22 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 		//mesh_ptr->nodes[i]=Node<T>{i,tmp_t[0],tmp_t[1],tmp_t[2]};
 		mesh_ptr->nodes[i]=tmp_node;
 	}
-	//calculate area in each Element
-	T total_area=0;
+	
+	std::vector<T> total_area(num_blk,0);
+	//calculate area of each Element
 	std::vector<Node<T>> nodes_in_elem(elem_type);
 	for (int i=0; i<num_elem; ++i){
 		for (int j=0; j<elem_type; ++j){
 			nodes_in_elem[j]=(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]);
 			(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]).link_elem_ids.push_back(i);
 		}
-		total_area+=mesh_ptr->elem_ptrs[i]->calArea(&nodes_in_elem);
+		total_area[mesh_ptr->elem_ptrs[i]->attrib-1]+=mesh_ptr->elem_ptrs[i]->calArea(&nodes_in_elem);
 		mesh_ptr->elem_ptrs[i]->calCenter(&nodes_in_elem);
 	}
-	std::cout << "the total area of the mesh: " << total_area <<std::endl;
+	for (int i=0; i<num_blk; ++i){
+		std::cout << "The area of metal objective " << i+1 << ": " << total_area[i] << "m^2 \n";
+		logfile << "The area of metal objective " << i+1 << ": " << total_area[i] << "m^2 \n";
+	}
 	return mesh_ptr;
 }
 //explicit instantiations for commonly used types
@@ -100,7 +105,7 @@ template Mesh<float> * LoadMesh<float>(const std::string meshfile);
 template Mesh<double> * LoadMesh<double>(const std::string meshfile);
 
 template<typename T>
-void Node<T>::print_info(std::ofstream & logfile){
+void Node<T>::print_info(){
 	logfile<<"Node id:"<< node_id <<std::endl;
 	logfile<<"Coordinates x: "<< x <<", y: "<< y <<", z: " << z <<std::endl;
 	logfile<<"Elements that includes this node: ";
@@ -109,7 +114,7 @@ void Node<T>::print_info(std::ofstream & logfile){
 	}
 	logfile<<std::endl<<std::endl;
 }
-template void Node<float>::print_info(std::ofstream & logfile);
-template void Node<double>::print_info(std::ofstream & logfile);
+template void Node<float>::print_info();
+template void Node<double>::print_info();
 
 

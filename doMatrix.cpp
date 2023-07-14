@@ -71,7 +71,7 @@ Eigen::Matrix<std::complex<T>, -1, -1> * CalCoeffMat(BasisFunc<T> * basis){
 	int num_base=basis->num_base;
 	Eigen::Matrix<std::complex<T>, -1, -1> * A = new Eigen::Matrix<std::complex<T>, -1, -1>(num_base, num_base);
 	int i;
-	#pragma omp parallel for private(i)
+	//#pragma omp parallel for private(i)
 	for (i = 0; i < num_base; ++i) {
 		for (int j = 0; j < num_base; ++j) {
 			if (i==j) {

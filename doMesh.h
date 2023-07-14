@@ -18,7 +18,7 @@ struct Node: Base{
 	Node(){} //used for trivial initialization: std::vector<Node<T>> nodes_in_elem(elem_type);
 	Node(int nid,T x, T y, T z): node_id(nid),x(x),y(y),z(z),link_elem_ids(0) {}
 	~Node(){}
-	void print_info(std::ofstream & logfile);
+	void print_info();
 };
 
 struct Edge: Base{

@@ -1,6 +1,7 @@
 #ifndef DOMATRIX_H
 #define DOMATRIX_H
 
+#include "doConfig.h"
 #include "doMesh.h"
 #include <eigen3/Eigen/Dense>
 #include <eigen3/unsupported/Eigen/IterativeSolvers>
@@ -8,8 +9,6 @@
 #include <cmath>
 #include <omp.h>
 
-template<typename T>
-constexpr T PERMITIVITY = static_cast<T>(8.854e-12);
 
 template <typename T>
 struct BasisFunc{

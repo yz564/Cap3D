@@ -6,6 +6,11 @@
 #include <string>
 #include <fstream>
 
+extern std::ofstream logfile; // global variable
+
+template<typename T>
+T PERMITIVITY; // global variable
+
 template <typename T>
 class Config {
 public:

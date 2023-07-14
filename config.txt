@@ -3,6 +3,9 @@
 1    #relative permitivity of the homogeneous background
 1    #number of metal objectives
 1  #the electrostatic potential for each metal objective
-2    #the number of threads to use in computation
+1    #the number of threads to use in computation
 #below is the mesh file name:
-mesh/sphere_1_meshsize0p1.elx
+#mesh/parallel_box_2_0p4_meshsize0p1.elx
+#mesh/coaxial_5_1_meshsize0p1.elx
+#mesh/disc_1_meshsize0p1.elx
+mesh/sphere_1_meshsize0p3.elx

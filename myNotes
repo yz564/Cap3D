@@ -1,0 +1,57 @@
+[Testcases]
+
+correct: sphere r=1m
+C=1.108e-10 F
+
+circular disc r=1m
+C=7.005e-11 F
+
+*not sure:
+circular coaxial r_in=0.1m, r_out_1=0.5m, r_out_2=0.55m, l=1m
+C11=4.33e-11 F, C12 =-3.98e-11 F
+C21=-3.98e-11 F, C22=10.55e-11 F
+
+*not sure: parallel_plate w=2m,l=2m,d=0.4m
+C11=C22=1.58e-10 F
+C12=C21=-1.10e-10 F
+however, the Area cap formula is 0.89e-10 F. fringe cap is significant
+
+parallel_box w=2m,l=2m,d=0.4m, thickness 0.01m
+C11=1.25e-10 F, C12=-1.03e-10 F (similar to the plates)
+
+parallel_plate w=1m,l=1m,d=0.1m
+C11=1.58e-10 F, C12=-1.10e-10 F
+
+*wrong: parallel_plate w=1m, l=1m, d=0.01m (meshsize: 0.1m)
+large difference when changing mesh(mesh 0.2m ->0.1m)
+C11=-2.499e-10 F, C12=2.689e-10 F (signs are also wrong)
+
+The reason is that: 
+0 order basis function v_n(r')=1 if r' in s_n, else =0;
+delta testing function w_m(r)=delta(r-r_m).
+The inner (s_n) surface integral for G(r_m,r') is approximated by
+A_mn=s_n/(4*pi*eps*|r_m-r_n|) if m!=n
+A_mn=sqrt(s_n/pi)/(2*eps) if m==n
+
+where r_m and r_n are the center point of the element m and n, respectively.
+when the two plate distance d=0.01 < meshzie 0.1 m, r-r' cannot be well appoximated by r_m-r_n. 
+Offdiagnal elements are wrong, diagnal may be okay because can still approxiame element to a circle of the same area and do the analytical integration.
+BTW, symmetrics may mitigate some integral errors for the offdiagonal element in matrix A.
+
+
+[todo]
+use the same basis and testing functions (Galerkin)
+implement higher order basis and testing functions
+try numerical integral?
+
+parallel computation:
+1) enable openmp
+2) domain decomposition
+
+inhomogeneous Green's function?
+two objects solves in one matrix, no worries about the homogeneous Greens function. 
+But the two objects solves separately, Greens function changes... 
+
+frequency (poisson to helmholz): static, quasi-static, low-frequency, high-frequency
+
+
