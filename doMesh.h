@@ -57,10 +57,11 @@ public:
 	int num_elem;
 	int num_node;
 	int elem_type;
+	int num_attrib;
 	std::vector<Element<T>*> elem_ptrs;
 	std::vector<Node<T>> nodes;
 
-	Mesh(int Ne, int Nn, int Et);
+	Mesh(int Ne, int Nn, int Et, int Na);
 	~Mesh(){
 		for (int i=0; i<num_elem; ++i){
 			delete elem_ptrs[i];

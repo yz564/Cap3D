@@ -1,5 +1,6 @@
 CC := g++
-CFLAGS := -Wall -Wextra -pedantic -g -fopenmp
+CFLAGS := -Wall -Wextra -pedantic -g -fopenmp 
+LFLAGS := -lmkl_intel_lp64 -lmkl_sequential -lmkl_core
 TARGET := cap3d
 SRCS := main.cpp doConfig.cpp doMesh.cpp doMatrix.cpp
 OBJS := $(SRCS:.cpp=.o)
@@ -10,7 +11,7 @@ DEPS := doConfig.h doMesh.h doMatrix.h
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $@
+	$(CC) $(OBJS) -o $@ $(CFLAGS) $(LFLAGS)
 
 %.o: %.cpp $(DEPS)
 	$(CC) $(CFLAGS) -c $< -o $@

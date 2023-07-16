@@ -70,9 +70,10 @@ template <typename T>
 Eigen::Matrix<std::complex<T>, -1, -1> * CalCoeffMat(BasisFunc<T> * basis){
 	int num_base=basis->num_base;
 	Eigen::Matrix<std::complex<T>, -1, -1> * A = new Eigen::Matrix<std::complex<T>, -1, -1>(num_base, num_base);
-	int i;
-	//#pragma omp parallel for private(i)
-	for (i = 0; i < num_base; ++i) {
+	//#pragma omp parallel for
+	for (int i = 0; i < num_base; ++i) {
+		//std::cout << "i="<< i <<" executed by thread " << omp_get_thread_num() << std::endl;
+		#pragma omp parallel for
 		for (int j = 0; j < num_base; ++j) {
 			if (i==j) {
 				(*A)(i,j)=basis->calDiag(i);
@@ -88,15 +89,30 @@ template Eigen::Matrix<std::complex<float>, -1, -1> * CalCoeffMat(BasisFunc<floa
 template Eigen::Matrix<std::complex<double>, -1, -1> * CalCoeffMat(BasisFunc<double> * basis);
 
 template <typename T>
-Eigen::Matrix<std::complex<T>, -1, 1> * CalRhsVec(BasisFunc<T> * basis, std::vector<T> * e_potential){
+Eigen::Matrix<std::complex<T>, -1, -1> * CalRhsVec(BasisFunc<T> * basis, std::vector<T> * e_potential){
 	int num_base=basis->num_base;
-	Eigen::Matrix<std::complex<T>, -1, 1> * b = new Eigen::Matrix<std::complex<T>, -1, 1>(num_base,1);
-	int i;
-	for (i=0; i<num_base; ++i){
+	Eigen::Matrix<std::complex<T>, -1, -1> * b = new Eigen::Matrix<std::complex<T>, -1, -1>(num_base,1);
+	for (int i=0; i<num_base; ++i){
 		(*b)(i)=basis->calRhs(i,e_potential);
 	}
 	return b;
 }
-template Eigen::Matrix<std::complex<float>, -1, 1> * CalRhsVec(BasisFunc<float> * basis, std::vector<float> * e_potential);
-template Eigen::Matrix<std::complex<double>, -1, 1> * CalRhsVec(BasisFunc<double> * basis, std::vector<double> * e_potential);
+template Eigen::Matrix<std::complex<float>, -1, -1> * CalRhsVec(BasisFunc<float> * basis, std::vector<float> * e_potential);
+template Eigen::Matrix<std::complex<double>, -1, -1> * CalRhsVec(BasisFunc<double> * basis, std::vector<double> * e_potential);
 
+
+template <typename T>
+Eigen::Matrix<std::complex<T>, -1, -1> * CalRhs(BasisFunc<T> * basis, int num_metal){
+	int num_base=basis->num_base;
+	Eigen::Matrix<std::complex<T>, -1, -1> * b = new Eigen::Matrix<std::complex<T>, -1, -1>(num_base,num_metal);
+	for (int j=0; j<num_metal; ++j){
+		std::vector<T> e_potential(num_metal,0);
+		e_potential[j]=1;
+		for (int i=0; i<num_base; ++i){
+			(*b)(i,j)=basis->calRhs(i,&e_potential);
+		}
+	}
+	return b;
+}
+template Eigen::Matrix<std::complex<float>, -1, -1> * CalRhs(BasisFunc<float> * basis, int num_metal);
+template Eigen::Matrix<std::complex<double>, -1, -1> * CalRhs(BasisFunc<double> * basis, int num_metal);

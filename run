@@ -1,0 +1,3 @@
+#!/bin/bash
+export CAP_MATRIX=1
+./cap3d

@@ -1,11 +1,14 @@
 #this file is usesd to pass parameter to the solver
 #the solver will ignore the remaining things after '#' in each line
 1    #relative permitivity of the homogeneous background
-1    #number of metal objectives
-1  #the electrostatic potential for each metal objective
+2    #number of metal objectives
+0.5 -0.5  #the electrostatic potential for each metal objective
 1    #the number of threads to use in computation
 #below is the mesh file name:
 #mesh/parallel_box_2_0p4_meshsize0p1.elx
+#mesh/parallel_plate_2_0p4_meshsize0p1.elx
 #mesh/coaxial_5_1_meshsize0p1.elx
 #mesh/disc_1_meshsize0p1.elx
-mesh/sphere_1_meshsize0p3.elx
+#mesh/sphere_1_meshsize0p3.elx
+mymesh/parallel_cable_10_0p1_0p5_meshsize0p1.elx
+#mesh/parallel_cable_open_2_0p1_0p5_meshsize0p1.elx

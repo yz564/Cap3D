@@ -1,13 +1,16 @@
 ==================start==================
-Homogeneous background permitivity : 1.7708e-11F/m 
-Mesh File : mesh/sphere_1_meshsize0p3.elx
-The electrostatic potential of metal objective 1: 1V 
-[Mesh] constructor: Elem_num = 334, node_num = 169
-The area of metal objective 1: 12.3354m^2 
-Load the mesh takes 0.005559 seconds
-Calculate the coefficient matrix takes 0.040753 seconds
-Calculate the rhs vector takes 9.8e-05 seconds
-Solve the matrix equation takes 1.19137 seconds
-Total electric charge on the metal objective 1: 2.1997e-10C 
-Total time: 1.23853 seconds
+Homogeneous background permitivity : 8.854e-12F/m 
+Mesh File : mymesh/parallel_cable_10_0p1_0p5_meshsize0p1.elx
+The electrostatic potential of metal objective 1: 0.5V 
+The electrostatic potential of metal objective 2: -0.5V 
+[Mesh] constructor: Elem_num = 10852, node_num = 5430
+The area of metal objective 1: 6.2906m^2 
+The area of metal objective 2: 6.29069m^2 
+Load the mesh takes 0.120839 seconds
+Calculate the coefficient matrix takes 44.9212 seconds
+Calculate the rhs vector takes 0.01487 seconds
+Solve the matrix equation takes 67.5582 seconds
+Total electric charge on the metal objective 1: 1.81558e-10C 
+Total electric charge on the metal objective 2: -1.81558e-10C 
+Total time: 112.742 seconds
 ==================finish==================

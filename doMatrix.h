@@ -37,7 +37,10 @@ template <typename T>
 Eigen::Matrix<std::complex<T>, -1, -1> * CalCoeffMat(BasisFunc<T> * basis);
 
 template <typename T>
-Eigen::Matrix<std::complex<T>, -1, 1> * CalRhsVec(BasisFunc<T> * basis, std::vector<T> * e_potential);
+Eigen::Matrix<std::complex<T>, -1, -1> * CalRhsVec(BasisFunc<T> * basis, std::vector<T> * e_potential);
+
+template <typename T>
+Eigen::Matrix<std::complex<T>, -1, -1> * CalRhs(BasisFunc<T> * basis, int num_metal);
 
 template <typename T>
 T calDistant (Node<T> * p1, Node<T> * p2);

@@ -1,173 +1,184 @@
 import os
 import numpy as np
 from netCDF4 import Dataset
+import glob
+import datetime
+
+# Global variable MatRotY
+MatRotY = None
 
 def ConvertCubit_g_2_elx_V8(nstr='*', RotYDeg=0):
-    if nstr == '*' and RotYDeg == 0:
+    if nstr == '*':
         nstr = '*'
         RotYDeg = 0
-    
+
+    if RotYDeg is None:
+        RotYDeg = 0
+
     global MatRotY
-    beta = np.deg2rad(RotYDeg)
+    beta = RotYDeg * np.pi / 180
     cosb = np.cos(beta)
     sinb = np.sin(beta)
     MatRotY = np.array([[cosb, 0, sinb], [0, 1, 0], [-sinb, 0, cosb]])
 
     gtype = '.g'
     etype = '.elx'
-    gv = [file for file in os.listdir() if file.endswith(gtype) and nstr in file]
-    elxv = [file for file in os.listdir() if file.endswith(etype) and nstr in file]
+    gv = glob.glob(nstr + gtype)
+    elxv = glob.glob(nstr + etype)
 
     M = len(gv)
     for m in range(M):
-        gname = gv[m]
-        L = len(gname) - len(gtype)
-        gnam = gname[:L]
-        gv[m] = gnam
+        gname = os.path.splitext(os.path.basename(gv[m]))[0]
+        gv[m] = gname
 
     N = len(elxv)
+    for m in range(N):
+        elxname = os.path.splitext(os.path.basename(elxv[m]))[0]
+        elxv[m] = elxname
 
-    print('Convert *.g to *.elx:')
+    nelem_nnod_natt = []
     for m in range(M):
         gname = gv[m]
-        gexist = False
-        for n in range(N):
-            gexist = (gname + etype) == elxv[n]
-            if gexist:
-                break
+        gexist = gname in elxv
         if not gexist:
             ncg2elxV3(gname + gtype, gname + etype, False)
-            print(f'\t{gname + etype}: converted successfully!')
+            print('\t{} {}: converted successfully!'.format(gname, etype))
         else:
-            print(f'\t{gname + etype}: NO need to be converted!')
+            print('\t{} {}: NO need to be converted!'.format(gname, etype))
+
+def get_NodXYZ(ncid):
+    var_names = ncid.variables.keys()
+    xyz_vec = None
+
+    # Look for the variable containing coordinate data
+    if 'coord' in var_names:
+        xyz_vec = ncid.variables['coord'][:]
+    elif 'coordx' in var_names and 'coordy' in var_names and 'coordz' in var_names:
+        x_vec = ncid.variables['coordx'][:]
+        y_vec = ncid.variables['coordy'][:]
+        z_vec = ncid.variables['coordz'][:]
+        xyz_vec = np.column_stack((x_vec, y_vec, z_vec))
+
+    return xyz_vec
+
 
 def ncg2elxV3(ncg_file, file_out, pf=True):
-    global MatRotY
+    global MatRotY  # Global variable should be defined here
 
-    finfo = Dataset(ncg_file, 'r')
-    dim_num = len(finfo.dimensions)
-    for dim in finfo.dimensions.values():
-        tch = dim.name
-        if tch == 'num_nodes':
-            num_node = dim.size
-        elif tch == 'num_elem':
-            num_elem = dim.size
-        elif tch == 'num_el_blk':
-            num_blk = dim.size
+    ncid = Dataset(ncg_file, 'r')
 
-    nelem_nnod_natt = np.zeros((num_blk, 3))
+    # Get dimensions
+    num_node = ncid.dimensions['num_nodes'].size
+    num_elem = ncid.dimensions['num_elem'].size
+    num_blk = ncid.dimensions['num_el_blk'].size
+
+    # Get element information
+    nelem_nnod_natt = []
     for cnt in range(1, num_blk + 1):
-        blk_el_str = f'num_el_in_blk{cnt}'
-        blk_nn_str = f'num_nod_per_el{cnt}'
-        blk_at_str = f'num_att_in_blk{cnt}'
+        blk_el_str = 'num_el_in_blk' + str(cnt)
+        blk_nn_str = 'num_nod_per_el' + str(cnt)
+        blk_at_str = 'num_att_in_blk' + str(cnt)
 
-        for dim in finfo.dimensions.values():
-            tch = dim.name
-            if tch == blk_el_str:
-                nelem = dim.size
-            elif tch == blk_nn_str:
-                nnod = dim.size
-            elif tch == blk_at_str:
-                natt = dim.size
+        nelem = ncid.dimensions[blk_el_str].size
+        nnod = ncid.dimensions[blk_nn_str].size
+        natt = ncid.dimensions[blk_at_str].size
 
-        nelem_nnod_natt[cnt-1, :] = [nelem, nnod, natt]
+        nelem_nnod_natt.append([nelem, nnod, natt])
 
-    if (np.sum(nelem_nnod_natt[:, 0]) != num_elem) or (not np.all(nelem_nnod_natt[:, 2] == 1)):
+    if sum([elem[0] for elem in nelem_nnod_natt]) != num_elem or any([elem[2] != 1 for elem in nelem_nnod_natt]):
         print('ERROR: in subdomain element numbers or attributes !!!')
         return
 
-    att_connect_eltype = [[f'attrib{cnt}', f'connect{cnt}'] for cnt in range(1, num_blk + 1)]
-    elem_type_vec = [None] * num_blk
+    # Read attribute and connect data
+    att_connect_eltype = []
+    elem_type_vec = []
     for cnt in range(1, num_blk + 1):
-        att_connect_eltype[cnt-1][0] = f'attrib{cnt}'
-        att_connect_eltype[cnt-1][1] = f'connect{cnt}'
+        cstr = 'attrib' + str(cnt)
+        att_vec = ncid.variables[cstr][:]
 
-        att_var = finfo.variables[att_connect_eltype[cnt-1][1]]
-        typstr = att_var.elem_type
+        nelem = nelem_nnod_natt[cnt - 1][0]
+        natt = nelem_nnod_natt[cnt - 1][2]
 
-        if typstr == 'SHELL4':
-            att_connect_eltype[cnt-1][2] = 'QUAD4'
-        elif typstr == 'TETRA10':
-            att_connect_eltype[cnt-1][2] = typstr
-        elif typstr == 'SHELL9':
-            att_connect_eltype[cnt-1][2] = 'QUAD9'
-        elif typstr == 'TRI3':
-            att_connect_eltype[cnt-1][2] = typstr
+        #ConnectAttrib = np.transpose(np.reshape(att_vec, (natt, nelem)))
+        ConnectAttrib = np.reshape(att_vec, (nelem,natt))
+        cstr = 'connect' + str(cnt)
+        con_vec = ncid.variables[cstr][:]
+        nnod = nelem_nnod_natt[cnt - 1][1]
+        #Connect = np.transpose(np.reshape(con_vec, (nnod, nelem)))
+        Connect = np.reshape(con_vec, (nelem,nnod))
+        att_connect_eltype.append([Connect, ConnectAttrib])
+
+        elem_typ_str = ncid.variables[cstr].elem_type
+        L = len(elem_typ_str)
+        while elem_typ_str[L - 1].isdigit():
+            elem_typ_str = elem_typ_str[:L - 1]
+            L = len(elem_typ_str)
+
+        if elem_typ_str == 'SHELL':
+            if len(ConnectAttrib[0]) == 2:
+                shell_attrib = ConnectAttrib[0, 0] * 1000 + ConnectAttrib[0, 1]
+            else:
+                shell_attrib = ConnectAttrib[0, 0]
+            elem_type_vec.append('QUAD4')
+        elif elem_typ_str == 'TETRA':
+            elem_type_vec.append('TETRA10')
+        elif elem_typ_str == 'SHELL':
+            elem_type_vec.append('QUAD9')
+        elif elem_typ_str == 'TRI':
+            elem_type_vec.append('TRI3')
         else:
             print('ERROR: Element Type needs to be modified !!!')
             return
-        elem_type_vec[cnt-1] = att_connect_eltype[cnt-1][2]
 
-    ConnectAttrib = [[None, None] for _ in range(num_blk)]
-    for cnt in range(1, num_blk + 1):
-        cstr = att_connect_eltype[cnt-1][0]
-        att_vec = finfo.variables[cstr][:]
-        nelem = nelem_nnod_natt[cnt-1, 0]
-        natt = nelem_nnod_natt[cnt-1, 2]
-        ConnectAttrib[cnt-1][1] = att_vec.reshape((natt, nelem)).T
+    # Read coordinate data
+    xyz_vec = get_NodXYZ(ncid)
+    if xyz_vec is None:
+        print('ERROR: Could not find coordinate data in the NetCDF file!')
+        return
 
-        cstr = att_connect_eltype[cnt-1][1]
-        con_vec = finfo.variables[cstr][:]
-        nnod = nelem_nnod_natt[cnt-1, 1]
-        ConnectAttrib[cnt-1][0] = con_vec.reshape((nnod, nelem)).T
-
+    num_node = len(xyz_vec)
     NodXYZ = np.zeros((num_node, 3))
-    for var in finfo.variables.values():
-        tch = var.name
-        if tch == 'coord':
-            xyz_vec = var[:]
-            NodXYZ = xyz_vec.reshape((num_node, 3))
-            break
-        elif tch == 'coordx':
-            xyz_vec = var[:]
-            NodXYZ[:, 0] = xyz_vec
-        elif tch == 'coordy':
-            xyz_vec = var[:]
-            NodXYZ[:, 1] = xyz_vec
-        elif tch == 'coordz':
-            xyz_vec = var[:]
-            NodXYZ[:, 2] = xyz_vec
 
-    avgxyz = np.mean(np.abs(NodXYZ))
-    nodf0 = np.abs(NodXYZ) < avgxyz * 1.0E-12
-    NodXYZ[nodf0] = 0
+    # Assign the coordinate data
+    if xyz_vec.shape[1] == 3:
+        NodXYZ[:, :] = xyz_vec
+    else:
+        print('ERROR: Incompatible coordinate data shape in the NetCDF file!')
+        return
 
-    L = len(file_out)
+    # Rotate the coordinates
+    #if MatRotY is not None:
+    #    NodXYZ = np.dot(NodXYZ, MatRotY.T)
+
+    # Write data to the output file
     affix = '.elx'
-    if file_out[(L-3):L] == affix:
-        file_out = file_out[:L-4]
-
+    if file_out.endswith(affix):
+        file_out = file_out[:-len(affix)]
     with open(file_out + affix, 'w') as fwid:
-        fwid.write(f'#Date: {str(datetime.now())}, by Breeze\n')
+        fwid.write(f'#Date: {str(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))}, by Yang Zhong\n')
         fwid.write(f'{num_blk:4d}{num_elem:8d}{num_node:8d} \t#num_blk, num_elem, num_node\n')
-        fwid.write(f'{nelem_nnod_natt[0, 1]:4d}{att_connect_eltype[0][2]:12s} \t#num_nod_per_elem, elem_type\n')
+        fwid.write(f'{nelem_nnod_natt[0][1]:4d}{elem_type_vec[0]:>12s} \t#num_nod_per_elem, elem_type\n')
 
-        wfmt = ' '.join(['%0d'] * nelem_nnod_natt[0, 1]) + '\n'
+        wfmt = ''
+        for m in range(nelem_nnod_natt[0][1]):
+            wfmt += '%0d '
+        wfmt += '\r\n'
 
         for cnt in range(1, num_blk + 1):
-            elem_typ_str = att_connect_eltype[0][2]
-            L = len(elem_typ_str)
-            while elem_typ_str[L-1].isdigit():
-                elem_typ_str = elem_typ_str[:L-1]
-                L = len(elem_typ_str)
-            if elem_typ_str == 'SHELL':
-                if len(ConnectAttrib[cnt-1][1][0]) == 2:
-                    shell_attrib = ConnectAttrib[cnt-1][1][0, 0] * 1000 + ConnectAttrib[cnt-1][1][0, 1]
-                else:
-                    shell_attrib = ConnectAttrib[cnt-1][1][0]
-                fwid.write(f'{nelem_nnod_natt[cnt-1, 0]:8d}{cnt:4d}{shell_attrib:8d} \t#num_elem_blk, blk_id, atrib_blk\n')
-            else:
-                fwid.write(f'{nelem_nnod_natt[cnt-1, 0]:8d}{cnt:4d}{ConnectAttrib[cnt-1][1][0]:8d} \t#num_elem_blk, blk_id, atrib_blk\n')
-
-            for m in range(nelem_nnod_natt[cnt-1, 0]):
-                fwid.write(wfmt % tuple(ConnectAttrib[cnt-1][0][m]))
+            fwid.write(f'{nelem_nnod_natt[cnt - 1][0]:8d}{cnt:4d}{int(att_connect_eltype[cnt - 1][1][0, 0]):8d} \t#num_elem_blk, blk_id, atrib_blk\n')
+            for m in range(nelem_nnod_natt[cnt - 1][0]):
+                fwid.write(wfmt % tuple(att_connect_eltype[cnt - 1][0][m, :]))
 
         for m in range(num_node):
-            v = NodXYZ[m]
-            w = np.dot(MatRotY, v)
-            fwid.write(f'%.16G %.16G %.16G \n' % tuple(w))
+            v = NodXYZ[m, :]
+            w = np.dot(MatRotY, v.T)
+            fwid.write('%.16G %.16G %.16G \n' % (w[0], w[1], w[2]))
+
+    ncid.close()
 
     if pf:
-        print(f'Mesh converted successfully: {file_out + affix} !!!')
+        print(f'Mesh converted successfully: {file_out}{affix} !!!')
 
+
+ConvertCubit_g_2_elx_V8()
 

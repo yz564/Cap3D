@@ -3,7 +3,7 @@
 #include <assert.h>
 
 template <typename T>
-Mesh<T>::Mesh(int Ne, int Nn, int Et) : num_elem(Ne), num_node(Nn), elem_type(Et), elem_ptrs(Ne), nodes(Nn) {
+Mesh<T>::Mesh(int Ne, int Nn, int Et, int Na) : num_elem(Ne), num_node(Nn), elem_type(Et), num_attrib(Na), elem_ptrs(Ne), nodes(Nn) {
 	printf("[Mesh] constructor: Elem_num=%d, node_num=%d \n", num_elem, num_node);
 	logfile<<"[Mesh] constructor: Elem_num = " <<num_elem<<", node_num = " <<num_node<< std::endl;
 }
@@ -49,7 +49,7 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 	get_line_strip_comments(readfile, str); //third line
 	ReadLine_helper<int>(str, 1, tmp);
 	int elem_type = tmp[0];
-	Mesh<T> * mesh_ptr = new Mesh<T>(num_elem, num_node, elem_type);
+	Mesh<T> * mesh_ptr = new Mesh<T>(num_elem, num_node, elem_type, num_blk);
 	int count = 0;
 	for (int i = 0; i < num_blk; ++i) {
 		get_line_strip_comments(readfile, str);
