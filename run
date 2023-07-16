@@ -1,3 +1,10 @@
 #!/bin/bash
 export CAP_MATRIX=1
+echo "the env CAP_MATRIX is set: calculate the cap matrix no matter what voltages are configured."
+
 ./cap3d
+
+extracted_string=$(grep -o '/[^/]*\.elx' cap3d.log | sed 's,^/,,; s/\.elx$//')
+new_logfile_name="$extracted_string.log"
+cp cap3d.log "$new_logfile_name"
+echo "Logfile renamed to: $new_logfile_name"

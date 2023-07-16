@@ -24,8 +24,10 @@ void printTransposeMatrix(const std::vector<std::vector<T>>& matrix)
         for (size_t i = 0; i < matrix.size(); ++i)
         {
             std::cout << matrix[i][j] << "  ";
+            logfile << matrix[i][j] << "  ";
         }
         std::cout << std::endl;
+        logfile << std::endl;
     }
 }
 
@@ -40,6 +42,7 @@ void Cal3dCaps(){
 	Config<T> * config=ReadConfig<T>("config.txt");
 	const int numThreads = omp_get_max_threads();
 	omp_set_num_threads(numThreads);
+	mkl_set_num_threads(numThreads);
 	std::cout << "Thread numbers: " << numThreads << std::endl;
 	Eigen::initParallel();
 	//Eigen::setNbThreads(config->allowedthreads);
@@ -96,9 +99,19 @@ void Cal3dCaps(){
 	std::copy(b.data(), b.data() + n, reinterpret_cast<std::complex<double>*>(mkl_b));
 	*/
 	if(std::is_same<T, float>::value){
-		cgesv(&n, &nrhs, reinterpret_cast<MKL_Complex8*>(A->data()), &lda, ipiv, reinterpret_cast<MKL_Complex8*>(b->data()), &ldb, &info);
+		MKL_Complex8* mkl_A = (MKL_Complex8*)mkl_malloc(n * n * sizeof(MKL_Complex8), 64); //Memory Alignment: For better performance
+		std::copy(A->data(), A->data() + (n * n), reinterpret_cast<std::complex<float>*>(mkl_A));
+		delete A;
+		cgesv(&n, &nrhs, mkl_A, &lda, ipiv, reinterpret_cast<MKL_Complex8*>(b->data()), &ldb, &info);
+		delete mkl_A;
+		//cgesv(&n, &nrhs, reinterpret_cast<MKL_Complex8*>(A->data()), &lda, ipiv, reinterpret_cast<MKL_Complex8*>(b->data()), &ldb, &info);
 	}else{
-		zgesv(&n, &nrhs, reinterpret_cast<MKL_Complex16*>(A->data()), &lda, ipiv, reinterpret_cast<MKL_Complex16*>(b->data()), &ldb, &info);
+		MKL_Complex16* mkl_A = (MKL_Complex16*)mkl_malloc(n * n * sizeof(MKL_Complex16), 64);
+		std::copy(A->data(), A->data() + (n * n), reinterpret_cast<std::complex<double>*>(mkl_A));
+		delete A;
+		zgesv(&n, &nrhs, mkl_A, &lda, ipiv, reinterpret_cast<MKL_Complex16*>(b->data()), &ldb, &info);
+		delete mkl_A;
+		//zgesv(&n, &nrhs, reinterpret_cast<MKL_Complex16*>(A->data()), &lda, ipiv, reinterpret_cast<MKL_Complex16*>(b->data()), &ldb, &info);
 	}
 
 	if (info > 0) {
@@ -136,7 +149,6 @@ void Cal3dCaps(){
 	
 	
 	delete[] ipiv;
-	delete A;
 	delete b;
 	delete basis;
 	delete mesh;
