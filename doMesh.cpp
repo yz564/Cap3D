@@ -16,8 +16,21 @@ T Triangle<T>::calArea(std::vector<Node<T>> * nodes_ptr){
 	T a = std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2) + std::pow(p2.z - p1.z, 2));
     	T b = std::sqrt(std::pow(p3.x - p2.x, 2) + std::pow(p3.y - p2.y, 2) + std::pow(p3.z - p2.z, 2));
     	T c = std::sqrt(std::pow(p1.x - p3.x, 2) + std::pow(p1.y - p3.y, 2) + std::pow(p1.z - p3.z, 2));
-    	T s = (a + b + c) / 2;  // Semi-perimeter
+    	T s = (a + b + c) / 2.0;  // Semi-perimeter
     	this->area = std::sqrt(s * (s - a) * (s - b) * (s - c));  // Heron's formula
+    	return this->area;
+}
+// need to modify for non-parallel cases
+template <typename T>
+T Quadrilateral<T>::calArea(std::vector<Node<T>> * nodes_ptr){
+	Node<T> p1=(*nodes_ptr)[0];
+	Node<T> p2=(*nodes_ptr)[1];
+	Node<T> p3=(*nodes_ptr)[2];
+	Node<T> p4=(*nodes_ptr)[3];
+	Node<T> ab= Node<T>(-1,p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+	Node<T> ac= Node<T>(-1,p3.x-p1.x,p3.y-p1.y,p3.z-p1.z);
+	Node<T> N= Node<T>(-1, ab.y*ac.z-ab.z*ac.y, ab.z*ac.x-ab.x*ac.z, ab.x*ac.y-ab.y*ac.x);
+	this->area = std::sqrt(N.x * N.x + N.y * N.y + N.z * N.z)/1.0;
     	return this->area;
 }
 
@@ -26,9 +39,21 @@ void Triangle<T>::calCenter(std::vector<Node<T>> * nodes_ptr){
 	Node p1=(*nodes_ptr)[0];
 	Node p2=(*nodes_ptr)[1];
 	Node p3=(*nodes_ptr)[2];
-	T x = (p1.x+p2.x+p3.x)/3;
-    	T y = (p1.y+p2.y+p3.y)/3;
-    	T z = (p1.z+p2.z+p3.z)/3;
+	T x = (p1.x+p2.x+p3.x)/3.0;
+    	T y = (p1.y+p2.y+p3.y)/3.0;
+    	T z = (p1.z+p2.z+p3.z)/3.0;
+    	this->center = new Node(-this->elem_id,x,y,z); // use negative id: represent which element (-elem_id) contains this point
+}
+// Should implement the calCenter in the parent class...
+template <typename T>
+void Quadrilateral<T>::calCenter(std::vector<Node<T>> * nodes_ptr){
+	Node p1=(*nodes_ptr)[0];
+	Node p2=(*nodes_ptr)[1];
+	Node p3=(*nodes_ptr)[2];
+	Node p4=(*nodes_ptr)[3];
+	T x = (p1.x+p2.x+p3.x+p4.x)/4.0;
+    	T y = (p1.y+p2.y+p3.y+p4.y)/4.0;
+    	T z = (p1.z+p2.z+p3.z+p4.z)/4.0;
     	this->center = new Node(-this->elem_id,x,y,z); // use negative id: represent which element (-elem_id) contains this point
 }
 
@@ -60,6 +85,15 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 		if (elem_type==3){
 			for (int j = 0; j < num_elem_blk; ++j) {
 				Triangle<T> * elem_ptr=new Triangle<T>(j, attrib_blk);
+				std::getline(readfile, str);
+				ReadLine_helper<int>(str, elem_type, elem_ptr->node_ids);
+				for (int k = 0; k < elem_type; ++k){elem_ptr->node_ids[k]-=1;} //meshfile index is 1-based
+				mesh_ptr->elem_ptrs[count]=elem_ptr;
+				count++;
+			}
+		}else if(elem_type==4){
+			for (int j = 0; j < num_elem_blk; ++j) {
+				Quadrilateral<T> * elem_ptr=new Quadrilateral<T>(j, attrib_blk);
 				std::getline(readfile, str);
 				ReadLine_helper<int>(str, elem_type, elem_ptr->node_ids);
 				for (int k = 0; k < elem_type; ++k){elem_ptr->node_ids[k]-=1;} //meshfile index is 1-based

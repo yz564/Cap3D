@@ -40,15 +40,15 @@ def find_table_by_name(tables, table_names, target_table_name):
             return tables[i]
     return None
     
-def plot_triangle_mesh(vertices, triangles, values):
+def plot_triangle_mesh(vertices, elements, values):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot vertices
     ax.scatter3D(vertices[:, 0], vertices[:, 1], vertices[:, 2], s=1, c='black')
 
-    # Plot triangles
-    mesh = [vertices[tri] for tri in triangles]
+    # Plot elements
+    mesh = [vertices[tri] for tri in elements]
     tri_collection = Poly3DCollection(mesh, linewidths=0.5, edgecolors='black', alpha=1, cmap='seismic')
     tri_collection.set_array(values)
     ax.add_collection3d(tri_collection)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     csv_file = "mesh_charge_density.csv"  # Replace this with your CSV file path
     tables, table_names = read_csv_with_multiple_tables(csv_file)
     vertices = find_table_by_name(tables, table_names, 'coordinates')
-    triangles = find_table_by_name(tables, table_names, 'elements')
+    elements = find_table_by_name(tables, table_names, 'elements')
     charge = find_table_by_name(tables, table_names, 'charge_density')
-    plot_triangle_mesh(vertices.values, triangles.values, charge.values.flatten())
+    plot_triangle_mesh(vertices.values, elements.values, charge.values.flatten())
 

@@ -50,6 +50,15 @@ public:
 	~Triangle(){delete this->center;}
 };
 
+template <typename T>
+class Quadrilateral : public Element<T> {
+public:
+	Quadrilateral(int id, int object_id): Element<T>(id,object_id,4){}
+	T calArea(std::vector<Node<T>> * nodes_ptr) override;
+	void calCenter(std::vector<Node<T>> * nodes_ptr) override;
+	~Quadrilateral(){delete this->center;}
+};
+
 
 template<typename T>
 class Mesh {
