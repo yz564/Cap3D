@@ -16,7 +16,7 @@ void Basis_0<T>::setup(Mesh<T>* mesh){
 	this->num_base=mesh->num_elem;
 	this->base.resize(this->num_base);
 	for (size_t i=0; i < this->base.size(); ++i){
-		this->base[i] = mesh->elem_ptrs[i]->center;
+		this->base[i] = mesh->elem_ptrs[i]->center; //base locates at the center point of the element
 	}
 }
 template void Basis_0<float>::setup(Mesh<float>* mesh);

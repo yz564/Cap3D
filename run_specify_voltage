@@ -1,0 +1,17 @@
+#!/bin/bash
+unset CAP_MATRIX
+echo "the env CAP_MATRIX is unset: calculate the chargen distribution for specific voltages."
+
+./cap3d
+
+python3 plot_mesh.py 
+
+extracted_string=$(grep -o '/[^/]*\.elx' cap3d.log | sed 's,^/,,; s/\.elx$//')
+new_figure_name="$extracted_string.png"
+new_csv_name="$extracted_string.csv"
+if [ ! -d "result" ]; then
+    mkdir "result"
+fi
+mv charge_density.png "result/$new_figure_name"
+mv mesh_charge_density.csv "result/$new_csv_name"
+echo "Charge density plot has been saved to result/$new_figure_name"

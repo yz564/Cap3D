@@ -1,0 +1,18 @@
+==================start==================
+Homogeneous background permitivity : 8.854e-12F/m 
+Mesh File : mymesh/parallel_box_1_0p05_meshsize0p1.elx
+The electrostatic potential of metal objective 1: 0.5V 
+The electrostatic potential of metal objective 2: -0.5V 
+[Mesh] constructor: Elem_num = 1896, node_num = 952
+The area of metal objective 1: 2.04m^2 
+The area of metal objective 2: 2.04m^2 
+Load the mesh takes 0.026774 seconds
+Calculate the coefficient matrix takes 1.39921 seconds
+Calculate the rhs vector takes 0.013198 seconds
+Solve the matrix equation takes 0.455144 seconds
+The capacitance matrix:
+1.95514e-10  -1.73746e-10  
+-1.73746e-10  1.95537e-10  
+Post processing takes 0.001401 seconds
+Total time: 1.89762 seconds
+==================finish==================

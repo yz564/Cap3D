@@ -6,5 +6,8 @@ echo "the env CAP_MATRIX is set: calculate the cap matrix no matter what voltage
 
 extracted_string=$(grep -o '/[^/]*\.elx' cap3d.log | sed 's,^/,,; s/\.elx$//')
 new_logfile_name="$extracted_string.log"
-cp cap3d.log "$new_logfile_name"
-echo "Logfile renamed to: $new_logfile_name"
+if [ ! -d "result" ]; then
+    mkdir "result"
+fi
+mv cap3d.log "result/$new_logfile_name"
+echo "Logfile has been saved to: result/$new_logfile_name"
