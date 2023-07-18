@@ -4,7 +4,7 @@ echo "the env CAP_MATRIX is unset: calculate the chargen distribution for specif
 
 ./cap3d
 
-python3 plot_mesh.py 
+python3 plot_mesh.py mesh_charge_density.csv
 
 extracted_string=$(grep -o '/[^/]*\.elx' cap3d.log | sed 's,^/,,; s/\.elx$//')
 new_figure_name="$extracted_string.png"

@@ -1,3 +1,4 @@
+import sys
 import io
 import numpy as np
 import pandas as pd
@@ -45,16 +46,16 @@ def plot_triangle_mesh(vertices, elements, values):
     ax = fig.add_subplot(111, projection='3d')
 
     # Plot vertices
-    ax.scatter3D(vertices[:, 0], vertices[:, 1], vertices[:, 2], s=1, c='black')
+    ax.scatter3D(vertices[:, 0], vertices[:, 1], vertices[:, 2], s=0.1, c='black')
 
     # Plot elements
     mesh = [vertices[tri] for tri in elements]
-    tri_collection = Poly3DCollection(mesh, linewidths=0.5, edgecolors='black', alpha=1, cmap='seismic')
+    tri_collection = Poly3DCollection(mesh, linewidths=0.1, edgecolors='black', alpha=1, cmap='seismic')
     tri_collection.set_array(values)
     ax.add_collection3d(tri_collection)
     
     # Set axis ratio to be the same (equal aspect ratio)
-    #ax.set_box_aspect((np.ptp(vertices[:, 0]), np.ptp(vertices[:, 1]), np.ptp(vertices[:, 2])))
+    ax.set_box_aspect((np.ptp(vertices[:, 0]), np.ptp(vertices[:, 1]), np.ptp(vertices[:, 2])))
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -68,7 +69,10 @@ def plot_triangle_mesh(vertices, elements, values):
     plt.show()
 
 if __name__ == "__main__":
-    csv_file = "mesh_charge_density.csv"  # Replace this with your CSV file path
+    if len(sys.argv)<2:
+        csv_file = "mesh_charge_density.csv"  # CSV file path
+    else:
+        csv_file=sys.argv[1]
     tables, table_names = read_csv_with_multiple_tables(csv_file)
     vertices = find_table_by_name(tables, table_names, 'coordinates')
     elements = find_table_by_name(tables, table_names, 'elements')
