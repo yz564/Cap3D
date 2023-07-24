@@ -142,6 +142,7 @@ void Cal3dCaps(){
 	int ldb = b->rows();
 	int info;
 	int* ipiv = new int[n];
+	
 
 	if(std::is_same<T, float>::value){
 		MKL_Complex8* mkl_A = (MKL_Complex8*)mkl_malloc(n * n * sizeof(MKL_Complex8), 64); //Memory Alignment: For better performance
@@ -156,7 +157,7 @@ void Cal3dCaps(){
 		zgesv(&n, &nrhs, mkl_A, &lda, ipiv, reinterpret_cast<MKL_Complex16*>(b->data()), &ldb, &info);
 		delete mkl_A;
 	}
-	
+
 	if (info > 0) {
 		std::cout << "Failed to solve the matrix equation." << std::endl;
 	}
@@ -169,7 +170,7 @@ void Cal3dCaps(){
 		get_charge_distribution(metal_num, basis, b);
 	}
 	print_time_cost("Post processing takes ", timer);
-	
+
 	delete[] ipiv;
 	delete b;
 	delete basis;

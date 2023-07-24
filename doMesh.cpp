@@ -9,53 +9,31 @@ Mesh<T>::Mesh(int Ne, int Nn, int Et, int Na) : num_elem(Ne), num_node(Nn), elem
 }
 
 template <typename T>
-T Triangle<T>::calArea(std::vector<Node<T>> * nodes_ptr){
-	Node p1=(*nodes_ptr)[0];
-	Node p2=(*nodes_ptr)[1];
-	Node p3=(*nodes_ptr)[2];
-	T a = std::sqrt(std::pow(p2.x - p1.x, 2) + std::pow(p2.y - p1.y, 2) + std::pow(p2.z - p1.z, 2));
-    	T b = std::sqrt(std::pow(p3.x - p2.x, 2) + std::pow(p3.y - p2.y, 2) + std::pow(p3.z - p2.z, 2));
-    	T c = std::sqrt(std::pow(p1.x - p3.x, 2) + std::pow(p1.y - p3.y, 2) + std::pow(p1.z - p3.z, 2));
+T Triangle<T>::calArea(){
+	Node<T>* p1=this->node_ptrs[0];
+	Node<T>* p2=this->node_ptrs[1];
+	Node<T>* p3=this->node_ptrs[2];
+	T a = std::sqrt(std::pow(p2->x - p1->x, 2) + std::pow(p2->y - p1->y, 2) + std::pow(p2->z - p1->z, 2));
+    	T b = std::sqrt(std::pow(p3->x - p2->x, 2) + std::pow(p3->y - p2->y, 2) + std::pow(p3->z - p2->z, 2));
+    	T c = std::sqrt(std::pow(p1->x - p3->x, 2) + std::pow(p1->y - p3->y, 2) + std::pow(p1->z - p3->z, 2));
     	T s = (a + b + c) / 2.0;  // Semi-perimeter
     	this->area = std::sqrt(s * (s - a) * (s - b) * (s - c));  // Heron's formula
     	return this->area;
 }
 // need to modify for non-parallel cases
 template <typename T>
-T Quadrilateral<T>::calArea(std::vector<Node<T>> * nodes_ptr){
-	Node<T> p1=(*nodes_ptr)[0];
-	Node<T> p2=(*nodes_ptr)[1];
-	Node<T> p3=(*nodes_ptr)[2];
-	Node<T> p4=(*nodes_ptr)[3];
-	Node<T> ab= Node<T>(-1,p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
-	Node<T> ac= Node<T>(-1,p3.x-p1.x,p3.y-p1.y,p3.z-p1.z);
+T Quadrilateral<T>::calArea(){
+	Node<T>* p1=this->node_ptrs[0];
+	Node<T>* p2=this->node_ptrs[1];
+	Node<T>* p3=this->node_ptrs[2];
+	//Node<T>* p4=this->node_ptrs[3];
+	Node<T> ab= Node<T>(-1,p2->x-p1->x,p2->y-p1->y,p2->z-p1->z);
+	Node<T> ac= Node<T>(-1,p3->x-p1->x,p3->y-p1->y,p3->z-p1->z);
 	Node<T> N= Node<T>(-1, ab.y*ac.z-ab.z*ac.y, ab.z*ac.x-ab.x*ac.z, ab.x*ac.y-ab.y*ac.x);
 	this->area = std::sqrt(N.x * N.x + N.y * N.y + N.z * N.z)/1.0;
     	return this->area;
 }
 
-template <typename T>
-void Triangle<T>::calCenter(std::vector<Node<T>> * nodes_ptr){
-	Node p1=(*nodes_ptr)[0];
-	Node p2=(*nodes_ptr)[1];
-	Node p3=(*nodes_ptr)[2];
-	T x = (p1.x+p2.x+p3.x)/3.0;
-    	T y = (p1.y+p2.y+p3.y)/3.0;
-    	T z = (p1.z+p2.z+p3.z)/3.0;
-    	this->center = new Node(-this->elem_id,x,y,z); // use negative id: represent which element (-elem_id) contains this point
-}
-// Should implement the calCenter in the parent class...
-template <typename T>
-void Quadrilateral<T>::calCenter(std::vector<Node<T>> * nodes_ptr){
-	Node p1=(*nodes_ptr)[0];
-	Node p2=(*nodes_ptr)[1];
-	Node p3=(*nodes_ptr)[2];
-	Node p4=(*nodes_ptr)[3];
-	T x = (p1.x+p2.x+p3.x+p4.x)/4.0;
-    	T y = (p1.y+p2.y+p3.y+p4.y)/4.0;
-    	T z = (p1.z+p2.z+p3.z+p4.z)/4.0;
-    	this->center = new Node(-this->elem_id,x,y,z); // use negative id: represent which element (-elem_id) contains this point
-}
 
 /* 
 this function should change if the mesh template changes.
@@ -81,7 +59,7 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 		ReadLine_helper<int>(str, 3, tmp);
 		int num_elem_blk = tmp[0];
 		//int blk_id = tmp[1];
-		int attrib_blk = tmp[2];
+		int attrib_blk = tmp[2]-1;
 		if (elem_type==3){
 			for (int j = 0; j < num_elem_blk; ++j) {
 				Triangle<T> * elem_ptr=new Triangle<T>(j, attrib_blk);
@@ -118,14 +96,22 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 	
 	std::vector<T> total_area(num_blk,0);
 	//calculate area of each Element
-	std::vector<Node<T>> nodes_in_elem(elem_type);
+	//std::vector<Node<T>> nodes_in_elem(elem_type);
 	for (int i=0; i<num_elem; ++i){
+		Element<T>* temp_elem = mesh_ptr->elem_ptrs[i];
 		for (int j=0; j<elem_type; ++j){
-			nodes_in_elem[j]=(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]);
-			(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]).link_elem_ids.push_back(i);
+			temp_elem->node_ptrs[j]=&(mesh_ptr->nodes[temp_elem->node_ids[j]]);
+			//mesh_ptr->elem_ptrs[i]->node_ptrs[j]=&mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]];
+			//nodes_in_elem[j]=(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]);
+			temp_elem->node_ptrs[j]->link_elem_ids.push_back(i);
+			//(mesh_ptr->nodes[mesh_ptr->elem_ptrs[i]->node_ids[j]]).link_elem_ids.push_back(i);
 		}
-		total_area[mesh_ptr->elem_ptrs[i]->attrib-1]+=mesh_ptr->elem_ptrs[i]->calArea(&nodes_in_elem);
-		mesh_ptr->elem_ptrs[i]->calCenter(&nodes_in_elem);
+		total_area[temp_elem->attrib]+=temp_elem->calArea();
+		temp_elem->setQuadrature(1);
+		temp_elem->center=temp_elem->qpoints[0]; //calculate the center point;
+		temp_elem->qpoints.pop_back();
+		assert(temp_elem->qpoints.empty());
+		temp_elem->setQuadrature(1);
 	}
 	for (int i=0; i<num_blk; ++i){
 		std::cout << "The area of metal objective " << i+1 << ": " << total_area[i] << "m^2 \n";

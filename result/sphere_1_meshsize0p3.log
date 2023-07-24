@@ -2,15 +2,14 @@
 Homogeneous background permitivity : 8.854e-12F/m 
 Mesh File : mymesh/sphere_1_meshsize0p3.elx
 The electrostatic potential of metal objective 1: 0.5V 
-The electrostatic potential of metal objective 2: -0.5V 
 [Mesh] constructor: Elem_num = 334, node_num = 169
 The area of metal objective 1: 12.3354m^2 
-Load the mesh takes 0.004028 seconds
-Calculate the rhs vector takes 9e-05 seconds
-Calculate the coefficient matrix takes 0.09524 seconds
-Solve the matrix equation takes 0.02058 seconds
+Load the mesh takes 0.005818 seconds
+Calculate the rhs vector takes 5.7e-05 seconds
+Calculate the coefficient matrix takes 0.128631 seconds
+Solve the matrix equation takes 0.006997 seconds
 The capacitance matrix:
-1.09985e-10  
-Post processing takes 0.000224 seconds
-Total time: 0.120648 seconds
+1.09652e-10  
+Post processing takes 0.000155 seconds
+Total time: 0.142052 seconds
 ==================finish==================
