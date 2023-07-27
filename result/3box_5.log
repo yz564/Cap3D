@@ -8,13 +8,14 @@ The electrostatic potential of metal objective 3: 0V
 The area of metal objective 1: 2.8m^2 
 The area of metal objective 2: 2.8m^2 
 The area of metal objective 3: 35.9977m^2 
-Load the mesh takes 0.093222 seconds
-Calculate the rhs vector takes 0.003161 seconds
-Calculate the coefficient matrix takes 105.232 seconds
-Solve the matrix equation takes 44.907 seconds
-Total electric charge on the metal objective 1: 3.28008e-11C 
-Total electric charge on the metal objective 2: -3.28008e-11C 
-Total electric charge on the metal objective 3: 1.79844e-17C 
-Post processing takes 0.172052 seconds
-Total time: 150.417 seconds
+Load the mesh takes 0.109372 seconds
+Calculate the rhs vector takes 0.00726 seconds
+Calculate the coefficient matrix takes 105.039 seconds
+Solve the matrix equation takes 44.7263 seconds
+The capacitance matrix:
+5.4249e-11  -1.13527e-11  -1.64354e-11  
+-1.13527e-11  5.4249e-11  -1.64354e-11  
+-1.64356e-11  -1.64356e-11  2.56376e-10  
+Post processing takes 0.009063 seconds
+Total time: 149.901 seconds
 ==================finish==================

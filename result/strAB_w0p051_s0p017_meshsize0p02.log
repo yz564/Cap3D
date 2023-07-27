@@ -1,0 +1,27 @@
+==================start==================
+Homogeneous background permitivity : 2.6562e-11F/m 
+Mesh File : mymesh/strAB_w0p051_s0p017_meshsize0p02.elx
+The electrostatic potential of metal objective 1: 1V 
+The electrostatic potential of metal objective 2: 0V 
+The electrostatic potential of metal objective 3: 0V 
+The electrostatic potential of metal objective 4: 0V 
+The electrostatic potential of metal objective 5: 0V 
+[Mesh] constructor: Elem_num = 7988, node_num = 4004
+The area of metal objective 1: 0.093978m^2 
+The area of metal objective 2: 0.093978m^2 
+The area of metal objective 3: 0.093978m^2 
+The area of metal objective 4: 0.570008m^2 
+The area of metal objective 5: 0.554008m^2 
+Load the mesh takes 0.092876 seconds
+Calculate the rhs vector takes 0.011821 seconds
+Calculate the coefficient matrix takes 70.898 seconds
+Solve the matrix equation takes 27.3251 seconds
+The capacitance matrix:
+1.3364e-10  -3.78635e-11  -3.78632e-11  -2.69823e-11  -3.01563e-11  
+-3.78638e-11  1.13459e-10  -1.36587e-13  -3.53306e-11  -3.90778e-11  
+-3.78623e-11  -1.36572e-13  1.13459e-10  -3.53211e-11  -3.90892e-11  
+-2.69824e-11  -3.53258e-11  -3.53259e-11  1.89909e-10  -5.22862e-11  
+-3.01569e-11  -3.90832e-11  -3.90839e-11  -5.22862e-11  1.98824e-10  
+Post processing takes 0.012283 seconds
+Total time: 98.3483 seconds
+==================finish==================

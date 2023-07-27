@@ -95,6 +95,8 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 	}
 	
 	std::vector<T> total_area(num_blk,0);
+	int degree = std::stoi(std::getenv("QUADRATURE_DEGREE"));
+        printf("Quadrature degree is %d \n", degree);
 	//calculate area of each Element
 	//std::vector<Node<T>> nodes_in_elem(elem_type);
 	for (int i=0; i<num_elem; ++i){
@@ -111,7 +113,7 @@ Mesh<T> * LoadMesh(const std::string meshfile) {
 		temp_elem->center=temp_elem->qpoints[0]; //calculate the center point;
 		temp_elem->qpoints.pop_back();
 		assert(temp_elem->qpoints.empty());
-		temp_elem->setQuadrature(1);
+		temp_elem->setQuadrature(degree);
 	}
 	for (int i=0; i<num_blk; ++i){
 		std::cout << "The area of metal objective " << i+1 << ": " << total_area[i] << "m^2 \n";

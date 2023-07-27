@@ -6,13 +6,13 @@ The electrostatic potential of metal objective 2: -0.5V
 [Mesh] constructor: Elem_num = 1896, node_num = 952
 The area of metal objective 1: 2.04m^2 
 The area of metal objective 2: 2.04m^2 
-Load the mesh takes 0.0253 seconds
-Calculate the rhs vector takes 0.000786 seconds
-Calculate the coefficient matrix takes 3.90206 seconds
-Solve the matrix equation takes 0.433456 seconds
+Load the mesh takes 0.023118 seconds
+Calculate the rhs vector takes 0.00061 seconds
+Calculate the coefficient matrix takes 4.09389 seconds
+Solve the matrix equation takes 0.427331 seconds
 The capacitance matrix:
 2.57005e-10  -2.3495e-10  
 -2.34935e-10  2.57005e-10  
-Post processing takes 0.00137 seconds
-Total time: 4.36478 seconds
+Post processing takes 0.001332 seconds
+Total time: 4.54805 seconds
 ==================finish==================

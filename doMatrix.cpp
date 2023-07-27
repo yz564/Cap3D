@@ -55,14 +55,21 @@ T Basis_0<T>::calOffDiag(int i, int j){
 	Element<T>* temp_elem_j = dynamic_cast<Element<T>*>(this->base[j]);
 	Element<T>* temp_elem_i = dynamic_cast<Element<T>*>(this->base[i]);
 	T area=temp_elem_j->area;
-	Quadrature_point<T> r_i = temp_elem_i->center;
-	int num_quadrature=temp_elem_j->qpoints.size();
+	Quadrature_point<T> r_i_c = temp_elem_i->center;
+	Quadrature_point<T> r_j_c = temp_elem_i->center;
 	T value=0;
-	for (int k=0; k<num_quadrature; ++k){
-		Quadrature_point<T> r_j = temp_elem_j->qpoints[k];
-		T dist = calDistant<T>(r_i,r_j);
-		value+= r_j.weight/dist;
+	T center_dist=calDistant<T>(r_i_c,r_j_c);
+	if (center_dist<10*sqrt(temp_elem_j->area+temp_elem_i->area)){ // a rough estimation of edge length
+		int num_quadrature=temp_elem_j->qpoints.size();
+		for (int k=0; k<num_quadrature; ++k){
+			Quadrature_point<T> r_j = temp_elem_j->qpoints[k];
+			T dist = calDistant<T>(r_i_c,r_j);
+			value+= 1.0*r_j.weight/dist;
+		}
+	}else{
+		value=1.0/center_dist;
 	}
+	
 	return T (1.0/4.0/M_PI/PERMITIVITY<T>)*(area*value);
 }
 template float Basis_0<float>::calOffDiag(int i, int j);
