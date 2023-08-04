@@ -1,0 +1,32 @@
+#!/usr/bin/python3
+
+import time
+import numpy as np
+from get_matrix import generate_symmetric_matrix, floating_net_reduction, using_neumann_series
+
+if __name__=="__main__":
+	np.set_printoptions(precision=5, suppress=True)
+	matrix_size = 100
+	matrix = generate_symmetric_matrix(matrix_size)
+	
+	signal_net_num=5
+	print("before floating net reduction:")
+	print(matrix[:signal_net_num,:signal_net_num])
+	
+	start_time = time.time()
+	C=floating_net_reduction(matrix, signal_net_num)
+	end_time = time.time()
+	elapsed_time = end_time - start_time
+	print("Elapsed time:", elapsed_time, "seconds")
+	print("after floating net reduction:")
+	print(C)
+	
+	start_time = time.time()
+	C1, iterations=using_neumann_series(matrix, signal_net_num)
+	end_time = time.time()
+	elapsed_time = end_time - start_time
+	print("Elapsed time:", elapsed_time, "seconds")
+	print(f'using neumann series ({iterations}):')
+	print(C1)
+	
+	
