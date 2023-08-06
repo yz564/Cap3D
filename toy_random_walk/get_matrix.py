@@ -26,6 +26,34 @@ def generate_symmetric_matrix(size):
     
     return matrix
 
+def generate_special_symmetric_matrix(size):
+    # Generate a matrix with random off-diagonal elements
+    matrix = np.random.uniform(low=-0.01, high=0, size=(size, size))
+    matrix = np.tril(matrix, k=-1)  # Ensure lower triangular part is non-positive
+
+    # Make the matrix symmetric by copying lower triangle to upper triangle
+    matrix = matrix + matrix.T
+
+    # Add a random number of large absolute values in each row
+    for i in range(size):
+        num_large_elements = np.random.randint(1, 11)  # Random number from 1 to 10
+        for _ in range(num_large_elements):
+            col = np.random.randint(0, size)
+            while col == i:
+                col = np.random.randint(0, size)
+            large_value = np.random.uniform(low=-0.1, high=-10)
+            matrix[i, col] = matrix[col, i] = large_value
+
+        
+    # Set diagonal elements as negative sum of remaining elements
+    for i in range(size):
+        diag_element = -np.sum(matrix[i]) + matrix[i, i]
+        matrix[i, i] = diag_element
+
+
+    return matrix
+
+
 def floating_net_reduction(matrix, n_signal):
 	n = matrix.shape[0]
 	if n<n_signal:

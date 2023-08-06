@@ -2,12 +2,13 @@
 
 import time
 import numpy as np
-from get_matrix import generate_symmetric_matrix, floating_net_reduction, using_neumann_series
+from get_matrix import generate_symmetric_matrix, generate_special_symmetric_matrix, floating_net_reduction, using_neumann_series
+from random_walk import random_walk
 
 if __name__=="__main__":
 	np.set_printoptions(precision=5, suppress=True)
-	matrix_size = 100
-	matrix = generate_symmetric_matrix(matrix_size)
+	matrix_size = 20
+	matrix = generate_special_symmetric_matrix(matrix_size)
 	
 	signal_net_num=5
 	print("before floating net reduction:")
@@ -17,16 +18,22 @@ if __name__=="__main__":
 	C=floating_net_reduction(matrix, signal_net_num)
 	end_time = time.time()
 	elapsed_time = end_time - start_time
-	print("Elapsed time:", elapsed_time, "seconds")
 	print("after floating net reduction:")
 	print(C)
-	
+	print("matrix inversion method:", elapsed_time, "seconds")
+	'''
 	start_time = time.time()
 	C1, iterations=using_neumann_series(matrix, signal_net_num)
 	end_time = time.time()
 	elapsed_time = end_time - start_time
-	print("Elapsed time:", elapsed_time, "seconds")
 	print(f'using neumann series ({iterations}):')
 	print(C1)
-	
-	
+	print("Neumann series method:", elapsed_time, "seconds")
+	'''
+	start_time = time.time()
+	C2 =random_walk(matrix, signal_net_num)
+	end_time = time.time()
+	elapsed_time = end_time - start_time
+	print(f'using random walk:')
+	print(C2)
+	print("Random walk method:", elapsed_time, "seconds")
