@@ -5,12 +5,43 @@ import numpy as np
 from get_matrix import generate_symmetric_matrix, generate_special_symmetric_matrix, floating_net_reduction, using_neumann_series
 from random_walk import random_walk
 
-if __name__=="__main__":
-	np.set_printoptions(precision=5, suppress=True)
-	matrix_size = 20
-	matrix = generate_special_symmetric_matrix(matrix_size)
+def complete_cap_matrix(symmetric_matrix):
 	
-	signal_net_num=5
+	row_sums = symmetric_matrix.sum(axis=1)
+	new_row=-row_sums
+	last_row_sum=new_row.sum()
+	new_column=np.append(new_row, -last_row_sum)
+
+
+	# Append the new row as the last row to create the new symmetric matrix
+	new_symmetric_matrix = np.vstack((symmetric_matrix, new_row))
+
+	# Append the new column as the last column to create the final symmetric matrix
+	new_symmetric_matrix = np.hstack((new_symmetric_matrix, new_column.reshape(-1, 1)))
+	
+	return new_symmetric_matrix
+
+if __name__=="__main__":
+	#np.set_printoptions(precision=5, suppress=True)
+	matrix_size = 10
+	#matrix = generate_special_symmetric_matrix(matrix_size)
+	matrix = np.array([[3.88349e-11,  -1.76782e-12,  -2.18726e-11],  
+			[-1.76782e-12,  3.88349e-11,  -2.18726e-11],  
+			[-2.18726e-11,  -2.18726e-11,  7.7696e-11]])
+	C=complete_cap_matrix(matrix)
+	print("C:")
+	print(C)
+	C_inv=np.linalg.inv(C)
+	print("C^-1:")
+	print(C_inv)
+	Q=np.array([1e-10,-1e-10,0,0])
+	V = np.dot(C_inv,Q)
+	print("Q:")
+	print(Q)
+	print("V:")
+	print(V)
+	
+	signal_net_num=2
 	print("before floating net reduction:")
 	print(matrix[:signal_net_num,:signal_net_num])
 	

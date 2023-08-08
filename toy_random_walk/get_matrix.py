@@ -28,7 +28,7 @@ def generate_symmetric_matrix(size):
 
 def generate_special_symmetric_matrix(size):
     # Generate a matrix with random off-diagonal elements
-    matrix = np.random.uniform(low=-0.01, high=0, size=(size, size))
+    matrix = np.random.uniform(low=-0.001, high=0, size=(size, size))
     matrix = np.tril(matrix, k=-1)  # Ensure lower triangular part is non-positive
 
     # Make the matrix symmetric by copying lower triangle to upper triangle
@@ -36,12 +36,12 @@ def generate_special_symmetric_matrix(size):
 
     # Add a random number of large absolute values in each row
     for i in range(size):
-        num_large_elements = np.random.randint(1, 11)  # Random number from 1 to 10
+        num_large_elements = np.random.randint(1, 6)  # Random number from 1 to 5
         for _ in range(num_large_elements):
             col = np.random.randint(0, size)
             while col == i:
                 col = np.random.randint(0, size)
-            large_value = np.random.uniform(low=-0.1, high=-10)
+            large_value = np.random.uniform(low=-0.1, high=-1)
             matrix[i, col] = matrix[col, i] = large_value
 
         

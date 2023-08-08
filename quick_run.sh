@@ -1,4 +1,5 @@
 #!/bin/bash
 export QUADRATURE_DEGREE=6
-./run
+#./run
+
 ./run_specify_voltage
